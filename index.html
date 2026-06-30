@@ -1,54 +1,177 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ลงทะเบียน</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Register ✨</title>
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://fonts.googleapis.com/css2=family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
+    
     <style>
-        body { font-family: sans-serif; padding: 20px; background-color: #f5f5f5; }
-        .form-container { max-width: 400px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
-        .form-group input { width: 100%; padding: 8px; box-sizing: border-box; }
-        button { width: 100%; padding: 10px; background-color: #06C755; color: white; border: none; font-size: 16px; }
-        .error { color: red; font-size: 12px; display: none; }
+        * { 
+            box-sizing: border-box; 
+            font-family: 'Kanit', sans-serif;
+            -webkit-tap-highlight-color: transparent; /* ลบไฮไลท์สีฟ้าเวลาทัชบน iPhone */
+        }
+        
+        body { 
+            margin: 0;
+            padding: 20px 12px; 
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .form-container { 
+            width: 100%;
+            max-width: 420px; 
+            background: rgba(255, 255, 255, 0.95); 
+            padding: 30px 24px; 
+            border-radius: 30px; /* โค้งมนแบบนุ่มฟู */
+            box-shadow: 0 16px 32px rgba(142, 151, 168, 0.15);
+            border: 2px solid #ffffff;
+        }
+        
+        h2 {
+            text-align: center;
+            color: #333d4e;
+            font-size: 26px;
+            font-weight: 600;
+            margin-top: 0;
+            margin-bottom: 24px;
+        }
+
+        .form-group { 
+            margin-bottom: 18px; 
+        }
+        
+        .form-group label { 
+            display: block; 
+            margin-bottom: 6px; 
+            font-weight: 400;
+            color: #5c697d;
+            font-size: 14px;
+        }
+        
+        /* จุดตายแก้ซูม iPhone: ฟอนต์ input ต้องเป็น 16px เท่านั้น! */
+        .form-group input { 
+            width: 100%; 
+            padding: 12px 16px; 
+            font-size: 16px; 
+            border: 2px solid #e2e8f0; 
+            border-radius: 16px; 
+            background-color: #f8fafc;
+            color: #334155;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+        
+        .form-group input:focus {
+            border-color: #06C755;
+            background-color: #ffffff;
+            box-shadow: 0 0 0 4px rgba(6, 199, 85, 0.1);
+        }
+        
+        button { 
+            width: 100%; 
+            padding: 14px; 
+            background: linear-gradient(135deg, #06C755 0%, #05b34c 100%);
+            color: white; 
+            border: none; 
+            border-radius: 50px; /* ดีไซน์ปุ่มทรงแคปซูลสุดคิวท์ */
+            font-size: 18px; 
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 8px 16px rgba(6, 199, 85, 0.25);
+            transition: all 0.2s active;
+        }
+
+        /* เอฟเฟกต์ปุ่มบุ๋มตอนกด */
+        button:active {
+            transform: scale(0.96);
+            box-shadow: 0 4px 8px rgba(6, 199, 85, 0.15);
+        }
+        
+        .error { 
+            color: #ff4d4f; 
+            font-size: 13px; 
+            margin-top: 6px; 
+            display: none; 
+            padding-left: 4px;
+        }
+        
+        .loading { 
+            text-align: center; 
+            font-size: 16px;
+            color: #718096;
+            padding: 40px 0;
+        }
     </style>
 </head>
 <body>
+
 <div class="form-container">
-    <h2>ลงทะเบียนระบบ</h2>
-    <div id="loader">กำลังเชื่อมต่อ LINE...</div>
+    <h2>ลงทะเบียนระบบ 📝✨</h2>
+    <div id="loader" class="loading">正在连接 LINE... ห้ามกะพริบตานะเทอ 🪄</div>
+    
     <form id="registerForm" style="display:none;" onsubmit="handleSubmit(event)">
         <input type="hidden" id="lineId">
-        <div class="form-group"><label>เลข SAP (ID)</label><input type="text" id="sapId" required></div>
-        <div class="form-group"><label>ชื่อ (Name)</label><input type="text" id="name" required></div>
-        <div class="form-group"><label>นามสกุล (Surname)</label><input type="text" id="surname" required></div>
-        <div class="form-group"><label>อีเมล (Email)</label><input type="email" id="email" required></div>
-        <div class="form-group"><label>Username</label><input type="text" id="username" required></div>
-        <div class="form-group"><label>รหัสผ่าน</label><input type="password" id="password" required></div>
+
         <div class="form-group">
-            <label>ยืนยันรหัสผ่าน</label><input type="password" id="confirmPassword" required>
-            <div id="passError" class="error">รหัสผ่านไม่ตรงกันอะเทอ เช็คหน่อย!</div>
+            <label>🆔 เลข SAP (ID)</label>
+            <input type="text" id="sapId" placeholder="กรอกเลข SAP ของเทอ" required>
         </div>
-        <button type="submit" id="submitBtn">ลงทะเบียน</button>
+        <div class="form-group">
+            <label>👤 ชื่อ (Name)</label>
+            <input type="text" id="name" placeholder="ชื่อจริงภาษาไทยจ้า" required>
+        </div>
+        <div class="form-group">
+            <label>✨ นามสกุล (Surname)</label>
+            <input type="text" id="surname" placeholder="นามสกุลของเทอ" required>
+        </div>
+        <div class="form-group">
+            <label>✉️ อีเมล (Email)</label>
+            <input type="email" id="email" placeholder="example@domain.com" required>
+        </div>
+        <div class="form-group">
+            <label>🐱 Username</label>
+            <input type="text" id="username" placeholder="ตั้งชื่อผู้ใช้งาน" required>
+        </div>
+        <div class="form-group">
+            <label>🔑 รหัสผ่าน</label>
+            <input type="password" id="password" placeholder="ตั้งรหัสผ่านยาวๆ หน่อยน้า" required>
+        </div>
+        <div class="form-group">
+            <label>🔒 ยืนยันรหัสผ่าน</label>
+            <input type="password" id="confirmPassword" placeholder="กรอกรหัสผ่านอีกรอบดิ๊" required>
+            <div id="passError" class="error">❌ รหัสผ่านไม่ตรงกันนะเทอ เช็คใหม่ด่วน!</div>
+        </div>
+
+        <button type="submit" id="submitBtn">ลงทะเบียนเลย 🚀</button>
     </form>
 </div>
 
 <script>
-    // 🔴 เดี๋ยวเราต้องเอาค่ามาใส่ 2 บรรทัดนี้ในเฟส 4 นะ! 🔴
-    const LIFF_ID = "2006253510-pV7R4yeX"; 
+    // 🔴 ใส่ค่าเดิมของเทอลงในสองบรรทัดนี้ด้วยนะ!
+    const LIFF_ID = "ใส่_LIFF_ID_ของเทอตรงนี้"; 
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzET5SkF2zxSE4JXRRyiOwCwmrkDK5R_EVVXZLqAsp4YwRHYr4gMDMjkYBbzFeBgrVv/exec";
 
     async function initLiff() {
-        await liff.init({ liffId: LIFF_ID });
-        if (!liff.isLoggedIn()) { liff.login(); } 
-        else {
-            const profile = await liff.getProfile();
-            document.getElementById('lineId').value = profile.userId;
-            document.getElementById('loader').style.display = 'none';
-            document.getElementById('registerForm').style.display = 'block';
+        try {
+            await liff.init({ liffId: LIFF_ID });
+            if (!liff.isLoggedIn()) { 
+                liff.login(); 
+            } else {
+                const profile = await liff.getProfile();
+                document.getElementById('lineId').value = profile.userId;
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('registerForm').style.display = 'block';
+            }
+        } catch (error) {
+            document.getElementById('loader').innerText = "ระบบ LINE ขัดข้องอ่ะเทอ ลองเข้าใหม่นะ";
         }
     }
 
@@ -63,20 +186,18 @@
         }
         document.getElementById('passError').style.display = 'none';
         
-        // 1. ท่าปุ่มบุ๋ม (Disable ปุ่มทันทีเพื่อกันคนกดย้ำ)
         const submitBtn = document.getElementById('submitBtn');
         submitBtn.disabled = true;
-        submitBtn.innerText = "กำลังส่งข้อมูล...";
-        submitBtn.style.opacity = "0.6"; // ทำให้ปุ่มดูจางลงว่ากดไปแล้ว
-    
-        // 2. เสกกล่องหมุนๆ บล็อกหน้าจอ ห้ามกดปิด ห้ามคลิกข้างนอก
+        submitBtn.innerText = "กำลังปั่นข้อมูล...";
+        submitBtn.style.opacity = "0.6";
+
         Swal.fire({
-            title: 'กำลังลงทะเบียน...',
-            text: 'ระบบกำลังบันทึกข้อมูลจ้า รอแป๊บน้า อย่าเพิ่งปิดหน้านี้เลนเทอ',
+            title: 'กำลังลงทะเบียน... ⏳',
+            text: 'ระบบกำลังบันทึกข้อมูลจ้า รอแป๊บน้า อย่าเพิ่งกดปิดหน้าจอนะเทอ',
             allowOutsideClick: false,
             showConfirmButton: false,
             didOpen: () => {
-                Swal.showLoading(); // สั่งให้ไอคอนหมุนๆ ทำงาน
+                Swal.showLoading();
             }
         });
         
@@ -89,51 +210,46 @@
             password: pwd, 
             lineId: document.getElementById('lineId').value
         };
-    
+
         try {
             const res = await fetch(APPS_SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
             const result = await res.json();
             
-            // พอหลังบ้านตอบกลับมา ให้ปิดหน้าต่างหมุนๆ ก่อน
             Swal.close();
-    
+
             if (result.status === "success") { 
-                // 3. แสดง Popup สำเร็จ มีปุ่ม OK พอกดปุ๊บปิดหน้าต่าง LINE ทันที
                 Swal.fire({
-                    title: 'สำเร็จแล้วเทอ!',
+                    title: 'สำเร็จแล้วเทอ! 🎉',
                     text: result.message,
                     icon: 'success',
                     confirmButtonText: 'OK',
-                    confirmButtonColor: '#06C755' // สีเขียวสไตล์ LINE
+                    confirmButtonColor: '#06C755'
                 }).then((resAlert) => {
                     if (resAlert.isConfirmed) {
-                        liff.closeWindow(); // สั่งปิดหน้าต่าง LIFF ทันที
+                        liff.closeWindow();
                     }
                 });
             } else { 
-                // ถ้าหลังบ้านฟ้องว่าซ้ำ หรือมีปัญหา
                 Swal.fire({
-                    title: 'อุ๊ย พังอะ!',
-                    text: result.message,
+                    title: 'อุ๊ย ลงทะเบียนไม่ได้อะ! ❌',
+                    html: `${result.message}<br><br><span style="color: #ff4d4f; font-weight: bold;">มีปัญหาติดต่อพี่เจนได้เลยนะเทอ!</span>`,
                     icon: 'error',
-                    confirmButtonText: 'ลองใหม่'
+                    confirmButtonText: 'ปิดหน้าต่าง'
                 });
-                // คืนชีพให้ปุ่มกลับมากดได้ใหม่
                 submitBtn.disabled = false;
-                submitBtn.innerText = "ลงทะเบียน";
+                submitBtn.innerText = "ลงทะเบียนเลย 🚀";
                 submitBtn.style.opacity = "1";
             }
         } catch (error) {
             Swal.close();
             Swal.fire({
-                title: 'ระบบขัดข้อง!',
-                text: 'ส่งข้อมูลไม่สำเร็จอ่ะเทอ น่าจะติดเรื่องเน็ตหรือเซิร์ฟเวอร์ขัดข้องนะ',
+                title: 'ระบบขัดข้อง! 😭',
+                text: 'ส่งข้อมูลไม่สำเร็จอ่ะเทอ น่าจะติดเรื่องเน็ตขัดข้องนะ',
                 icon: 'error',
                 confirmButtonText: 'ตกลง'
             });
-            // คืนชีพให้ปุ่มกลับมากดได้ใหม่
             submitBtn.disabled = false;
-            submitBtn.innerText = "ลงทะเบียน";
+            submitBtn.innerText = "ลงทะเบียนเลย 🚀";
             submitBtn.style.opacity = "1";
         }
     }
