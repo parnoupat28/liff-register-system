@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ลงทะเบียน</title>
@@ -66,8 +67,29 @@
 
         const res = await fetch(APPS_SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
         const result = await res.json();
-        if (result.status === "success") { alert(result.message); liff.closeWindow(); } 
-        else { alert("พังอะเทอ: " + result.message); }
+        if (result.status === "success") { 
+            // โชว์ Popup สวยๆ
+            Swal.fire({
+                title: 'สำเร็จแล้วเทอ!',
+                text: 'ข้อมูลลงทะเบียนเรียบร้อย ระบบบันทึกให้แล้วนะ',
+                icon: 'success',
+                confirmButtonText: 'รับทราบ',
+                confirmButtonColor: '#06C755' // สีเขียวแบบ LINE
+            }).then((result) => {
+                // พอกดปุ่มรับทราบปุ๊บ ค่อยสั่งปิดหน้าต่าง LIFF
+                if (result.isConfirmed) {
+                    liff.closeWindow(); 
+                }
+            });
+        } 
+        else { 
+            Swal.fire({
+                title: 'อุ๊ย พังอะ!',
+                text: result.message,
+                icon: 'error',
+                confirmButtonText: 'ลองใหม่'
+            });
+        }
     }
     window.onload = initLiff;
 </script>
