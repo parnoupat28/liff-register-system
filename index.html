@@ -56,39 +56,85 @@
         event.preventDefault();
         const pwd = document.getElementById('password').value;
         const confirmPwd = document.getElementById('confirmPassword').value;
-        if (pwd !== confirmPwd) { document.getElementById('passError').style.display = 'block'; return; }
+        
+        if (pwd !== confirmPwd) { 
+            document.getElementById('passError').style.display = 'block'; 
+            return; 
+        }
         document.getElementById('passError').style.display = 'none';
         
+        // 1. ท่าปุ่มบุ๋ม (Disable ปุ่มทันทีเพื่อกันคนกดย้ำ)
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = true;
+        submitBtn.innerText = "กำลังส่งข้อมูล...";
+        submitBtn.style.opacity = "0.6"; // ทำให้ปุ่มดูจางลงว่ากดไปแล้ว
+    
+        // 2. เสกกล่องหมุนๆ บล็อกหน้าจอ ห้ามกดปิด ห้ามคลิกข้างนอก
+        Swal.fire({
+            title: 'กำลังลงทะเบียน...',
+            text: 'ระบบกำลังบันทึกข้อมูลจ้า รอแป๊บน้า อย่าเพิ่งปิดหน้านี้เลนเทอ',
+            allowOutsideClick: false,
+            showConfirmButton: false,
+            didOpen: () => {
+                Swal.showLoading(); // สั่งให้ไอคอนหมุนๆ ทำงาน
+            }
+        });
+        
         const payload = {
-            sapId: document.getElementById('sapId').value, name: document.getElementById('name').value,
-            surname: document.getElementById('surname').value, email: document.getElementById('email').value,
-            username: document.getElementById('username').value, password: pwd, lineId: document.getElementById('lineId').value
+            sapId: document.getElementById('sapId').value, 
+            name: document.getElementById('name').value,
+            surname: document.getElementById('surname').value, 
+            email: document.getElementById('email').value,
+            username: document.getElementById('username').value, 
+            password: pwd, 
+            lineId: document.getElementById('lineId').value
         };
-
-        const res = await fetch(APPS_SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
-        const result = await res.json();
-        if (result.status === "success") { 
-            // โชว์ Popup สวยๆ
+    
+        try {
+            const res = await fetch(APPS_SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
+            const result = await res.json();
+            
+            // พอหลังบ้านตอบกลับมา ให้ปิดหน้าต่างหมุนๆ ก่อน
+            Swal.close();
+    
+            if (result.status === "success") { 
+                // 3. แสดง Popup สำเร็จ มีปุ่ม OK พอกดปุ๊บปิดหน้าต่าง LINE ทันที
+                Swal.fire({
+                    title: 'สำเร็จแล้วเทอ!',
+                    text: result.message,
+                    icon: 'success',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#06C755' // สีเขียวสไตล์ LINE
+                }).then((resAlert) => {
+                    if (resAlert.isConfirmed) {
+                        liff.closeWindow(); // สั่งปิดหน้าต่าง LIFF ทันที
+                    }
+                });
+            } else { 
+                // ถ้าหลังบ้านฟ้องว่าซ้ำ หรือมีปัญหา
+                Swal.fire({
+                    title: 'อุ๊ย พังอะ!',
+                    text: result.message,
+                    icon: 'error',
+                    confirmButtonText: 'ลองใหม่'
+                });
+                // คืนชีพให้ปุ่มกลับมากดได้ใหม่
+                submitBtn.disabled = false;
+                submitBtn.innerText = "ลงทะเบียน";
+                submitBtn.style.opacity = "1";
+            }
+        } catch (error) {
+            Swal.close();
             Swal.fire({
-                title: 'สำเร็จแล้วเทอ!',
-                text: 'ข้อมูลลงทะเบียนเรียบร้อย ระบบบันทึกให้แล้วนะ',
-                icon: 'success',
-                confirmButtonText: 'รับทราบ',
-                confirmButtonColor: '#06C755' // สีเขียวแบบ LINE
-            }).then((result) => {
-                // พอกดปุ่มรับทราบปุ๊บ ค่อยสั่งปิดหน้าต่าง LIFF
-                if (result.isConfirmed) {
-                    liff.closeWindow(); 
-                }
-            });
-        } 
-        else { 
-            Swal.fire({
-                title: 'อุ๊ย พังอะ!',
-                text: result.message,
+                title: 'ระบบขัดข้อง!',
+                text: 'ส่งข้อมูลไม่สำเร็จอ่ะเทอ น่าจะติดเรื่องเน็ตหรือเซิร์ฟเวอร์ขัดข้องนะ',
                 icon: 'error',
-                confirmButtonText: 'ลองใหม่'
+                confirmButtonText: 'ตกลง'
             });
+            // คืนชีพให้ปุ่มกลับมากดได้ใหม่
+            submitBtn.disabled = false;
+            submitBtn.innerText = "ลงทะเบียน";
+            submitBtn.style.opacity = "1";
         }
     }
     window.onload = initLiff;
