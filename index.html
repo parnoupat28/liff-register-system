@@ -6,7 +6,7 @@
     <title>Register ✨</title>
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link href="https://fonts.googleapis.com/css2=family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
     
     <style>
         * { 
@@ -86,7 +86,7 @@
             font-weight: 600;
             cursor: pointer;
             box-shadow: 0 8px 16px rgba(6, 199, 85, 0.25);
-            transition: all 0.2s active;
+            transition: all 0.2s ease;
         }
 
         /* เอฟเฟกต์ปุ่มบุ๋มตอนกด */
@@ -115,7 +115,7 @@
 
 <div class="form-container">
     <h2>ลงทะเบียนระบบ 📝✨</h2>
-    <div id="loader" class="loading">正在连接 LINE... ห้ามกะพริบตานะเทอ 🪄</div>
+    <div id="loader" class="loading">กำลังเชื่อมต่อ LINE... ห้ามกะพริบตานะเทอ 🪄</div>
     
     <form id="registerForm" style="display:none;" onsubmit="handleSubmit(event)">
         <input type="hidden" id="lineId">
@@ -155,7 +155,7 @@
 </div>
 
 <script>
-    // 🔴 ใส่ค่าเดิมของเทอลงในสองบรรทัดนี้ด้วยนะ!
+    // ใส่ค่าของเทอให้เรียบร้อยแล้วจ้า ลุยโลด!
     const LIFF_ID = "2006253510-pV7R4yeX"; 
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzET5SkF2zxSE4JXRRyiOwCwmrkDK5R_EVVXZLqAsp4YwRHYr4gMDMjkYBbzFeBgrVv/exec";
 
